@@ -11,24 +11,26 @@ import bcrypt from "bcrypt";
 
 const registerUserController = async (req, res) => {
   try {
-    const { name, email, age, password } = req.body;
-    if (!name || !email || !age || !password) {
+    const { username, email, age, password } = req.body;
+
+    if (!username || !email || !age || !password) {
       return res.status(400).json({
         success: false,
         message: "Please give us the required fields to continue!",
       });
     }
-    // password regex
-    const passwordRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$";
 
-    if (!passwordRegex.test(email)) {
+    // Email regex
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+    if (!emailRegex.test(email)) {
       return res.status(400).json({
         success: false,
         message: "Please enter a valid email!",
       });
     }
 
-    // existing user
+    // Existing user
     const existingUser = await User.findOne({
       $or: [{ email: email.toLowerCase() }, { username }],
     });
@@ -36,7 +38,7 @@ const registerUserController = async (req, res) => {
     if (existingUser) {
       return res.status(409).json({
         success: false,
-        message: "User name or email already exists!",
+        message: "Username or email already exists!",
       });
     }
 
@@ -60,7 +62,8 @@ const registerUserController = async (req, res) => {
     });
 
     return res.status(201).json({
-      message: "User registerd succesfully!",
+      success: true,
+      message: "User registered successfully!",
       user: {
         id: newUser._id,
         username: newUser.username,
@@ -73,8 +76,77 @@ const registerUserController = async (req, res) => {
     });
   } catch (error) {
     return res.status(500).json({
+      success: false,
       message: "Something went wrong",
       error: error.message,
     });
   }
 };
+
+/**
+ * @route - POST /api/auth/login
+ * @description - Login the user
+ * @access - public
+ */
+
+const loginUserController = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Please enter your email and the password",
+      });
+    }
+
+    // find the email of user in db
+    const user = await User.findOne({
+      email: email.toLowerCase(),
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email or password!",
+      });
+    }
+
+    // check if the email has the valid password
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email or password!",
+      });
+    }
+
+    // create a jwt token
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_TOKEN, {
+      expiresIn: "45m",
+    });
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      sameSite: "lax",
+    });
+
+    const { password: _, ...userInfo } = user._doc;
+
+    return res.status(200).json({
+      success: true,
+      message: "Login successful!",
+      user: userInfo,
+      token,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong!",
+      error: error.message,
+    });
+  }
+};
+
+export { registerUserController, loginUserController };
