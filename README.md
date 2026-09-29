@@ -87,9 +87,9 @@ npm run dev
 ```
 
 Backend:
-- REST: http://localhost:5000/api
-- Health: http://localhost:5000/api/health
-- GraphQL: http://localhost:5000/graphql
+- REST: http://localhost:3000/api
+- Health: http://localhost:3000/api/health
+- GraphQL: http://localhost:3000/graphql
 
 ## 3. Frontend
 
