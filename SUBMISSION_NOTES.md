@@ -11,4 +11,3 @@ Recommended demo order:
 6. Explain the ES Module backend (`"type": "module"` and `import`/`export`).
 7. Record a short walkthrough video and attach the GitHub repository when submitting.
 
-The supplied brief says to complete any two tasks per level; this implementation includes all listed levels/tasks for a stronger demonstration.
