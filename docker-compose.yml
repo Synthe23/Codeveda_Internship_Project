@@ -1,0 +1,12 @@
+services:
+  mongodb:
+    image: mongo:7
+    container_name: codveda-taskflow-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - taskflow_mongo_data:/data/db
+
+volumes:
+  taskflow_mongo_data:
