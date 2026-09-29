@@ -1,5 +1,4 @@
 # TaskFlow — Codveda Full-Stack Development Project
-
 A complete JavaScript full-stack task management application built to cover the Codveda Full-Stack Development task requirements.
 
 ## Included levels/tasks
